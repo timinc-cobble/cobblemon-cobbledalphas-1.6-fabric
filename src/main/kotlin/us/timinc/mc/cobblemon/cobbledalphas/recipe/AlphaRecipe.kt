@@ -23,11 +23,20 @@ import kotlin.random.Random.Default.nextFloat
 class AlphaRecipe(
     val id: ResourceLocation,
     val matcher: PokemonProperties,
-    val guaranteedMaxIvs: Int = 3,
-    val levelBoost: Int = 10,
-    val specialMoves: List<String> = emptyList(),
-    val chance: Float = 100F,
+    val _guaranteedMaxIvs: Int?,
+    val _levelBoost: Int?,
+    val _specialMoves: List<String>?,
+    val _chance: Float?,
 ) {
+    val guaranteedMaxIvs
+        get() = _guaranteedMaxIvs ?: config.defaultGuaranteedMaxIvs
+    val levelBoost
+        get() = _levelBoost ?: config.defaultLevelBoost
+    val specialMoves
+        get() = _specialMoves ?: config.defaultSpecialMoves
+    val chance
+        get() = _chance ?: config.defaultChance
+
     fun matches(pokemon: Pokemon) = matcher.matches(pokemon)
 
     fun apply(pokemon: Pokemon) {
