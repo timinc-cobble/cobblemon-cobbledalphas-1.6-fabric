@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener
 import net.minecraft.util.profiling.ProfilerFiller
+import us.timinc.mc.cobblemon.cobbledalphas.CobbledAlphasMod.config
 import us.timinc.mc.cobblemon.cobbledalphas.CobbledAlphasMod.modResource
 import us.timinc.mc.cobblemon.cobbledalphas.api.gson.getOrNull
 import us.timinc.mc.cobblemon.cobbledalphas.customproperties.CobbledAlphasProperties.ALPHA
@@ -48,7 +49,7 @@ class AlphaRecipe(
         pokemon.level += levelBoost
 
         var replaceIndex = 0
-        for (moveName in specialMoves.shuffled()) {
+        for (moveName in (if (config.shuffleSpecialMoves) specialMoves.shuffled() else specialMoves)) {
             val move = Moves.getByName(moveName) ?: continue
 
             if (pokemon.moveSet.hasSpace()) {
