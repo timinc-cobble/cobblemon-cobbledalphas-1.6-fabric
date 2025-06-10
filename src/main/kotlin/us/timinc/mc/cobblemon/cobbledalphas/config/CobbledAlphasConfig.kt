@@ -1,5 +1,7 @@
 package us.timinc.mc.cobblemon.cobbledalphas.config
 
-class CobbledAlphasConfig {
+import us.timinc.mc.cobblemon.cobbledalphas.api.fabric.AbstractConfig
+
+class CobbledAlphasConfig : AbstractConfig() {
     val shuffleSpecialMoves: Boolean = false
 }
