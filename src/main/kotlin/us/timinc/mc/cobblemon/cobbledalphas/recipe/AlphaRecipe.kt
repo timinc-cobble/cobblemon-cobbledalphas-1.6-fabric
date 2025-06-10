@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener
 import net.minecraft.util.profiling.ProfilerFiller
+import us.timinc.mc.cobblemon.cobbledalphas.CobbledAlphasMod
 import us.timinc.mc.cobblemon.cobbledalphas.CobbledAlphasMod.config
 import us.timinc.mc.cobblemon.cobbledalphas.CobbledAlphasMod.modResource
 import us.timinc.mc.cobblemon.cobbledalphas.api.gson.getOrNull
@@ -30,36 +31,60 @@ class AlphaRecipe(
     fun matches(pokemon: Pokemon) = matcher.matches(pokemon)
 
     fun apply(pokemon: Pokemon) {
-        if (!matches(pokemon)) return
-        if (nextFloat() * 100F > chance) return
+        fun debug(msg: String) {
+            CobbledAlphasMod.debug("[${pokemon.uuid}] $msg")
+        }
 
+        if (!matches(pokemon)) return
+
+        debug("Rolling for Alpha status on ${matcher.originalString}.")
+        if (nextFloat() * 100F > chance) {
+            return
+        }
+
+        debug("Granting Alpha status.")
         ALPHA.pokemonApplicator(pokemon, true)
 
-        val ivs = pokemon.ivs
         if (guaranteedMaxIvs > 0) {
+            debug("Aiming for $guaranteedMaxIvs max IVs.")
+            val ivs = pokemon.ivs
             val imperfectIvs = ivs.filter { (_, value) -> value < IVs.MAX_VALUE }
             if (imperfectIvs.isNotEmpty()) {
                 val ivsToPerfect = imperfectIvs.shuffled().take(guaranteedMaxIvs)
+                debug("Setting $ivsToPerfect IVs to perfect.")
                 for ((stat) in ivsToPerfect) {
                     ivs[stat] = IVs.MAX_VALUE
                 }
+            } else {
+                debug("This Pokémon already has max perfect IVs.")
             }
+        } else {
+            debug("No max IVs for this recipe.")
         }
 
+        debug("Boosting level to ${pokemon.level} + $levelBoost.")
         pokemon.level += levelBoost
 
-        var replaceIndex = 0
-        for (moveName in (if (config.shuffleSpecialMoves) specialMoves.shuffled() else specialMoves)) {
-            val move = Moves.getByName(moveName) ?: continue
+        if (specialMoves.isNotEmpty()) {
+            debug("Adding $specialMoves to Pokémon.")
+            var replaceIndex = 0
+            var replaceIndexMax = 4
+            for (moveName in (if (config.shuffleSpecialMoves) specialMoves.shuffled() else specialMoves)) {
+                val move = Moves.getByName(moveName) ?: continue
 
-            if (pokemon.moveSet.hasSpace()) {
-                pokemon.moveSet.add(move.create())
-            } else if (replaceIndex < 4) {
-                pokemon.moveSet.setMove(replaceIndex++, move.create())
-            } else {
-                val benchedMove = BenchedMove(move, 0)
-                if (!pokemon.benchedMoves.contains(benchedMove)) {
-                    pokemon.benchedMoves.add(benchedMove)
+                if (pokemon.moveSet.hasSpace()) {
+                    debug("Adding $moveName to empty slot in move set.")
+                    pokemon.moveSet.add(move.create())
+                    replaceIndexMax--
+                } else if (replaceIndex < replaceIndexMax) {
+                    debug("Adding $moveName to slot previously occupied by ${pokemon.moveSet[replaceIndex]!!.name}.")
+                    pokemon.moveSet.setMove(replaceIndex++, move.create())
+                } else {
+                    debug("Adding $moveName to benched moves.")
+                    val benchedMove = BenchedMove(move, 0)
+                    if (!pokemon.benchedMoves.contains(benchedMove)) {
+                        pokemon.benchedMoves.add(benchedMove)
+                    }
                 }
             }
         }
