@@ -38,7 +38,8 @@ class AlphaRecipe(
         if (guaranteedMaxIvs > 0) {
             val imperfectIvs = ivs.filter { (_, value) -> value < IVs.MAX_VALUE }
             if (imperfectIvs.isNotEmpty()) {
-                for ((stat) in imperfectIvs.shuffled().take(guaranteedMaxIvs)) {
+                val ivsToPerfect = imperfectIvs.shuffled().take(guaranteedMaxIvs)
+                for ((stat) in ivsToPerfect) {
                     ivs[stat] = IVs.MAX_VALUE
                 }
             }
@@ -46,11 +47,14 @@ class AlphaRecipe(
 
         pokemon.level += levelBoost
 
-        for (moveName in specialMoves) {
+        var replaceIndex = 0
+        for (moveName in specialMoves.shuffled()) {
             val move = Moves.getByName(moveName) ?: continue
 
             if (pokemon.moveSet.hasSpace()) {
                 pokemon.moveSet.add(move.create())
+            } else if (replaceIndex < 4) {
+                pokemon.moveSet.setMove(replaceIndex++, move.create())
             } else {
                 val benchedMove = BenchedMove(move, 0)
                 if (!pokemon.benchedMoves.contains(benchedMove)) {
