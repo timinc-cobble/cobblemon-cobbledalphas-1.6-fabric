@@ -17,12 +17,12 @@ import us.timinc.mc.cobblemon.cobbledalphas.CobbledAlphasMod
 import us.timinc.mc.cobblemon.cobbledalphas.CobbledAlphasMod.config
 import us.timinc.mc.cobblemon.cobbledalphas.CobbledAlphasMod.modResource
 import us.timinc.mc.cobblemon.cobbledalphas.api.gson.getOrNull
-import us.timinc.mc.cobblemon.cobbledalphas.customproperties.CobbledAlphasProperties.ALPHA
+import us.timinc.mc.cobblemon.cobbledalphas.registry.CobbledAlphasProperties.ALPHA
 import kotlin.random.Random.Default.nextFloat
 
 class AlphaRecipe(
     val id: ResourceLocation,
-    val matcher: PokemonProperties,
+    val matcher: String,
     val _guaranteedMaxIvs: Int?,
     val _levelBoost: Int?,
     val _specialMoves: List<String>?,
@@ -37,7 +37,7 @@ class AlphaRecipe(
     val chance
         get() = _chance ?: config.defaultChance
 
-    fun matches(pokemon: Pokemon) = matcher.matches(pokemon)
+    fun matches(pokemon: Pokemon) = PokemonProperties.parse(matcher).matches(pokemon)
 
     fun apply(pokemon: Pokemon) {
         fun debug(msg: String) {
@@ -46,7 +46,7 @@ class AlphaRecipe(
 
         if (!matches(pokemon)) return
 
-        debug("Rolling for Alpha status on ${matcher.originalString}.")
+        debug("Rolling for Alpha status on ${matcher}.")
         if (nextFloat() * 100F > chance) {
             return
         }
@@ -114,8 +114,7 @@ class AlphaRecipe(
             val data = entry.value as JsonObject
 
             return AlphaRecipe(id,
-                data.getOrNull("matcher")?.asString?.let(PokemonProperties::parse)
-                    ?: throw Error("Invalid or missing matcher for $id"),
+                data.getOrNull("matcher")?.asString ?: throw Error("Invalid or missing matcher for $id"),
                 data.getOrNull("guaranteedMaxIvs")?.asInt ?: 3,
                 data.getOrNull("levelBoost")?.asInt ?: 10,
                 data.getOrNull("specialMoves")?.asJsonArray?.map { it.asString } ?: emptyList(),

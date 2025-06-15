@@ -15,6 +15,12 @@
         "adapter": "kotlin",
         "value": "us.timinc.mc.cobblemon.cobbledalphas.CobbledAlphasMod"
       }
+    ],
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "us.timinc.mc.cobblemon.cobbledalphas.CobbledAlphasClientMod"
+      }
     ]
   },
   "depends": {

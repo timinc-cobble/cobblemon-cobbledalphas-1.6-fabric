@@ -5,6 +5,7 @@ import com.cobblemon.mod.common.api.events.pokeball.ThrownPokeballHitEvent
 import net.minecraft.server.level.ServerPlayer
 import us.timinc.mc.cobblemon.cobbledalphas.CobbledAlphasMod.config
 import us.timinc.mc.cobblemon.cobbledalphas.registry.CobbledAlphasComponents
+import us.timinc.mc.cobblemon.cobbledalphas.registry.CobbledAlphasProperties
 import kotlin.math.max
 
 object BlockCaptureOnLowObedience : AbstractEventHandler<ThrownPokeballHitEvent>() {
@@ -12,6 +13,7 @@ object BlockCaptureOnLowObedience : AbstractEventHandler<ThrownPokeballHitEvent>
         if (!config.blockCaptureOnLowObedience) return
         val player = e.pokeBall.owner as? ServerPlayer ?: return
         val pokemonEntity = e.pokemon
+        if (!CobbledAlphasProperties.ALPHA.entityMatcher(pokemonEntity, true)) return
 
         val playerTeam = Cobblemon.storage.getParty(player)
         val occupiedSlots = playerTeam.getFirstAvailablePosition()?.slot?.let { max(1, it) } ?: 1

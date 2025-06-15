@@ -1,3 +1,7 @@
 {
-  "cobbledalphas.feedback.obedience_capture_failure": "%1$s's power makes it too strong to obey you!"
+  "cobbledalphas.feedback.obedience_capture_failure": "%1$s's power makes it too strong to obey you!",
+  "item.cobbledalphas.regular_balm": "Regular Balm",
+  "item.cobbledalphas.strong_balm": "Strong Balm",
+  "item.cobbledalphas.gooey_balm": "Gooey Balm",
+  "item.cobbledalphas.daze_balm": "Daze Balm"
 }
